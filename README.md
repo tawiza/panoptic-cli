@@ -20,7 +20,7 @@ $ panoptic 47
 Python 3.10+ requis. **Important** : n'installe jamais dans ton Python
 système. Toujours dans un environnement isolé. Trois façons :
 
-### 1. pipx depuis GitHub (recommandé, fonctionne maintenant)
+### 1. pipx (recommandé)
 
 pipx installe une CLI Python dans un environnement dédié, invisible pour le
 reste de ton système. Zéro conflit avec les autres paquets Python.
@@ -32,7 +32,7 @@ brew install pipx            # macOS
 pipx ensurepath
 
 # installe panoptic directement depuis le repo
-pipx install git+https://github.com/tawiza/panoptic-cli
+pipx install panoptic-tawiza
 ```
 
 La base de données SQLite est embarquée dans le paquet (372 KB décompressés,
@@ -47,22 +47,20 @@ Si tu préfères tout gérer toi-même :
 
 ```bash
 python -m venv ~/.panoptic-venv
-~/.panoptic-venv/bin/pip install git+https://github.com/tawiza/panoptic-cli
+~/.panoptic-venv/bin/pip install panoptic-tawiza
 ~/.panoptic-venv/bin/panoptic 47
 ```
 
 Tu peux ajouter un alias `alias panoptic='~/.panoptic-venv/bin/panoptic'`
 dans ton shell pour raccourcir.
 
-### 3. Bientôt : PyPI
+### 3. Depuis le repo GitHub (pour les versions dev, fork)
 
 ```bash
-pipx install panoptic-tawiza
+pipx install git+https://github.com/tawiza/panoptic-cli
 ```
 
-*En attente de la publication PyPI officielle.* Le wheel est déjà buildable
-(`python -m build --wheel` depuis le repo), il suffit de `twine upload`
-quand le compte PyPI sera prêt.
+Utile si tu veux tester une PR non publiée ou ta propre branche.
 
 ### 4. Bientôt : Docker
 
