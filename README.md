@@ -20,7 +20,7 @@ $ panoptic 47
 Python 3.10+ requis. **Important** : n'installe jamais dans ton Python
 système. Toujours dans un environnement isolé. Trois façons :
 
-### 1. pipx (recommandé)
+### 1. pipx depuis GitHub (recommandé, fonctionne maintenant)
 
 pipx installe une CLI Python dans un environnement dédié, invisible pour le
 reste de ton système. Zéro conflit avec les autres paquets Python.
@@ -31,11 +31,15 @@ sudo apt install pipx        # Debian, Ubuntu
 brew install pipx            # macOS
 pipx ensurepath
 
-# installe panoptic
-pipx install panoptic-tawiza
+# installe panoptic directement depuis le repo
+pipx install git+https://github.com/tawiza/panoptic-cli
 ```
 
-Mise à jour plus tard : `pipx upgrade panoptic-tawiza`.
+La base de données SQLite est embarquée dans le paquet (372 KB décompressés,
+124 KB en wheel). Tu peux lancer `panoptic 47` hors-ligne immédiatement.
+
+Mise à jour plus tard : `pipx upgrade panoptic-tawiza` ou
+`pipx reinstall panoptic-tawiza`.
 
 ### 2. venv à la main
 
@@ -43,16 +47,26 @@ Si tu préfères tout gérer toi-même :
 
 ```bash
 python -m venv ~/.panoptic-venv
-~/.panoptic-venv/bin/pip install panoptic-tawiza
+~/.panoptic-venv/bin/pip install git+https://github.com/tawiza/panoptic-cli
 ~/.panoptic-venv/bin/panoptic 47
 ```
 
 Tu peux ajouter un alias `alias panoptic='~/.panoptic-venv/bin/panoptic'`
 dans ton shell pour raccourcir.
 
-### 3. Docker
+### 3. Bientôt : PyPI
 
-*À venir v0.2.* Pour ceux qui préfèrent zéro installation Python locale.
+```bash
+pipx install panoptic-tawiza
+```
+
+*En attente de la publication PyPI officielle.* Le wheel est déjà buildable
+(`python -m build --wheel` depuis le repo), il suffit de `twine upload`
+quand le compte PyPI sera prêt.
+
+### 4. Bientôt : Docker
+
+*En v0.2.* Pour ceux qui préfèrent zéro installation Python locale.
 
 ---
 
@@ -61,8 +75,8 @@ dans ton shell pour raccourcir.
 Ces commandes installent panoptic dans le Python système partagé et peuvent
 casser d'autres outils. **Ne pas faire :**
 
-- `sudo pip install panoptic-tawiza`
-- `pip install panoptic-tawiza` sans venv actif
+- `sudo pip install ...`
+- `pip install ...` sans venv actif
 
 Utilise pipx ou venv (plus haut).
 
