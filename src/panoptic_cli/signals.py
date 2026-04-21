@@ -15,7 +15,7 @@ C. Anomalies structurelles
   C2  divergence registres : même projet, écart surface/puissance > 15 %
   C3  opacité opérateur : name/operator_raw générique ou NULL sur projet actif
 
-Pondération éditoriale validée par Hamide (2026-04-21) :
+Pondération (tawiza, 2026-04-21) :
   P2 "opposition naissante" est la priorité alarme.
   Paradoxe GLHD reste très visible, mais "il n'urge pas" → score élevé sans déclencher alarme.
 """

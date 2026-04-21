@@ -1,6 +1,6 @@
 """3AYNE — l'œil officiel Tawiza, porté depuis `tawiza-splash` / 3AYNE TUI.
 
-Source officielle : `/opt/tawiza-cli/3ayne/src/ayne/tui/mascot.py`.
+Source officielle : widget `mascot` du projet 3AYNE Tawiza.
 Palette 14 couleurs, iris or `#D4A843` signature Tawiza.
 Chaque ligne = 30 chars côté gauche + miroir (60 chars total).
 Rendu via `bgcolor` sur espaces → pixels carrés, pas half-blocks.
