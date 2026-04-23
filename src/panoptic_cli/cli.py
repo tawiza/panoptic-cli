@@ -127,6 +127,73 @@ def update(
 
 
 @app.command()
+def operators(
+    alarm: bool = typer.Option(False, "--alarm", help="uniquement les opérateurs en alarme (rachat récent, cascade offshore)"),
+    foreign: bool = typer.Option(False, "--foreign", help="uniquement les opérateurs sous contrôle étranger"),
+    top: int = typer.Option(20, "--top", help="limite le nombre d'opérateurs affichés"),
+) -> None:
+    """Cascade actionnariale : opérateurs et signaux D1-D7."""
+    from panoptic_cli.operators import load_all_operators
+
+    path = _default_db_path()
+    if not path.exists():
+        console.print(f"[red]DB introuvable : {path}[/]")
+        raise typer.Exit(code=2)
+
+    ops = load_all_operators(path, alarm_only=alarm, foreign_only=foreign, limit=top)
+    if not ops:
+        console.print("[dim](aucun opérateur trouvé — peut-être DB v0.2 sans migration v0.3 ?)[/]")
+        raise typer.Exit(code=0)
+
+    # Header sobre
+    from panoptic_cli.mascotte import EyeState, render as mascotte_render
+    any_alarm = any(o.is_alarm for o in ops)
+    state = EyeState.ALARME if any_alarm else EyeState.ATTENTIF
+    eye = mascotte_render(state)
+    console.print(eye.rich_text)
+    console.print(
+        f"[bold {eye.accent_color}]3AYNE · {eye.label}[/] "
+        f"— cascade actionnariale agrivoltaïque\n"
+    )
+
+    # Filtres appliqués
+    filters = []
+    if alarm: filters.append("alarme seulement")
+    if foreign: filters.append("contrôle étranger seulement")
+    if filters:
+        console.print(f"[dim]filtres : {' · '.join(filters)}[/]")
+    console.print(f"[bold]{len(ops)}[/] opérateur{'s' if len(ops) > 1 else ''} · triés par score de signal puis empreinte RNE\n")
+
+    from rich.table import Table
+    from panoptic_cli.operators import SIGNAL_LABELS
+
+    for op in ops:
+        marker = "⚠" if op.is_alarm else "·"
+        marker_style = "red3 bold" if op.is_alarm else "orange3"
+        console.print(
+            f"[{marker_style}]{marker}[/] [bold]{op.canonical_name}[/] "
+            f"[dim](SIREN {op.siren})[/]",
+            end="",
+        )
+        if op.ultimate_country and op.ultimate_country != "FRA":
+            console.print(f"  [red3]\\[{op.country_label}][/]", end="")
+        if op.n_subsidiaries_rne:
+            console.print(f"  [dim]· {op.n_subsidiaries_rne} SPV au RNE[/]", end="")
+        console.print()
+
+        if op.president_is_legal and op.president_current:
+            console.print(f"      [dim]président :[/] [italic]{op.president_current}[/]")
+
+        for sig in sorted(op.signals, key=lambda s: -s.score)[:4]:
+            color = "red3" if sig.is_alarm else "orange3" if sig.score >= 60 else "grey50"
+            label = SIGNAL_LABELS.get(sig.kind, sig.kind)
+            console.print(f"      [{color}]{label}[/] [dim][score {sig.score}][/]")
+            if sig.detail and sig.is_alarm:
+                console.print(f"        [dim italic]{sig.detail}[/]")
+        console.print()
+
+
+@app.command()
 def freshness() -> None:
     """État des sources et de 3AYNE."""
     import sqlite3
@@ -166,7 +233,7 @@ def freshness() -> None:
 # Permet `panoptic 47` (sans sous-commande "search") en interceptant sys.argv
 def main() -> None:
     argv = sys.argv[1:]
-    if argv and not argv[0].startswith("-") and argv[0] not in {"search-cmd", "freshness", "update"}:
+    if argv and not argv[0].startswith("-") and argv[0] not in {"search-cmd", "freshness", "update", "operators"}:
         sys.argv = [sys.argv[0], "search-cmd"] + argv
     app()
 

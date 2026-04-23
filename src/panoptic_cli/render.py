@@ -16,6 +16,11 @@ from rich.table import Table
 from rich.text import Text
 
 from panoptic_cli.mascotte import EyeState, render as mascotte_render
+from panoptic_cli.operators import (
+    OperatorRow,
+    SIGNAL_LABELS as OP_SIGNAL_LABELS,
+    any_operator_in_alarm,
+)
 from panoptic_cli.search import SearchResult
 from panoptic_cli.signals import Signal, is_alarm
 
@@ -24,8 +29,13 @@ console = Console()
 
 
 def _choose_eye_state(result: SearchResult, signals: list[Signal]) -> EyeState:
-    # P2 "opposition naissante" (B1) déclenche alarme en priorité éditoriale
+    # Alarme si :
+    #   - B1 "opposition naissante" dans les signaux projet/zone
+    #   - OU un opérateur de la zone est en alarme actionnariale (D3 rachat
+    #     récent, D7 cascade offshore) — v0.3
     if is_alarm(signals):
+        return EyeState.ALARME
+    if any_operator_in_alarm(result.operators):
         return EyeState.ALARME
     days = result.freshness_days
     if days is None:
@@ -184,11 +194,62 @@ def _signals_block(signals: list[Signal]) -> Text:
     return t
 
 
+def _operators_block(result: SearchResult) -> Text:
+    """Section "opérateurs" v0.3 : cascade actionnariale des opérateurs
+    actifs dans la zone."""
+    ops = result.operators
+    if not ops:
+        return Text("")
+
+    t = Text()
+    t.append("\nopérateurs dans la zone", style="bold")
+    t.append(f"  ({len(ops)})\n", style="dim")
+
+    # Tri : alarmes en premier, puis par empreinte RNE
+    ops_sorted = sorted(
+        ops,
+        key=lambda o: (0 if o.is_alarm else 1, -o.max_signal_score, -o.n_subsidiaries_rne),
+    )
+
+    for op in ops_sorted[:8]:
+        # Ligne principale : nom canonique + pays + empreinte
+        t.append("  ")
+        marker = "⚠" if op.is_alarm else "·"
+        marker_style = "red3 bold" if op.is_alarm else "orange3"
+        t.append(f"{marker} ", style=marker_style)
+        t.append(f"{op.canonical_name}", style="bold")
+        if op.ultimate_country and op.ultimate_country != "FRA":
+            t.append(f"  [{op.country_label}]", style="red3")
+        if op.n_subsidiaries_rne:
+            t.append(f"  · {op.n_subsidiaries_rne} SPV au RNE", style="dim")
+        t.append("\n")
+
+        # Président actuel si personne morale (signal fort)
+        if op.president_is_legal and op.president_current:
+            t.append(f"      président : ", style="dim")
+            t.append(f"{op.president_current}\n", style="italic")
+
+        # Signaux D classés par score
+        for sig in sorted(op.signals, key=lambda s: -s.score)[:3]:
+            color = "red3" if sig.is_alarm else "orange3" if sig.score >= 60 else "grey50"
+            t.append(f"      ", style="dim")
+            label = OP_SIGNAL_LABELS.get(sig.kind, sig.kind)
+            t.append(f"{label}", style=color)
+            t.append(f"  [score {sig.score}]\n", style="dim")
+            if sig.detail and sig.is_alarm:
+                t.append(f"        {sig.detail}\n", style="dim italic")
+
+    if len(ops) > 8:
+        t.append(f"  … {len(ops) - 8} autres opérateurs\n", style="dim italic")
+    return t
+
+
 def render_report(result: SearchResult, signals: list[Signal] | None = None) -> None:
     signals = signals or []
     console.print(_header(result, signals))
     console.print(Align.left(_overview(result)))
     console.print(_projects_table(result))
     console.print(_contestations_block(result))
+    console.print(_operators_block(result))
     console.print(_signals_block(signals))
     console.print(_footer(result))
