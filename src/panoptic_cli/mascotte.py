@@ -1,8 +1,9 @@
-"""3AYNE — l'œil officiel Tawiza, porté depuis `tawiza-splash` / 3AYNE TUI.
+"""3AYNE — l'œil officiel Tawiza, aligné sur la charte panoptic.tawiza.fr.
 
-Source officielle : widget `mascot` du projet 3AYNE Tawiza.
-Palette 14 couleurs, iris or `#D4A843` signature Tawiza.
-Chaque ligne = 30 chars côté gauche + miroir (60 chars total).
+Géométrie : pixel-art 30+miroir (60 chars) hérité du widget 3AYNE TUI.
+Palette : alignée sur le favicon du site (iris ocre `#b45309`, cœur rouge
+terre `#C1554D`) — pas la palette gold d'origine. Cohérence éditoriale
+avec l'article et le favicon SVG.
 Rendu via `bgcolor` sur espaces → pixels carrés, pas half-blocks.
 
 Trois frames canoniques :
@@ -14,7 +15,7 @@ Quatre états panoptic mappés sur les frames + palette :
   DORMANT   → CLOSED (œil fermé, data périmée)
   ATTENTIF  → HALF   (œil attentif)
   EVEILLE   → OPEN   (œil ouvert, data fraîche)
-  ALARME    → OPEN avec iris or → rouge terre `#C1554D`
+  ALARME    → OPEN avec iris plus saturé rouge terre
 
 On garde strictement la géométrie officielle — les états modulent uniquement
 la palette. C'est la règle éditoriale : 3AYNE reste reconnaissable partout.
@@ -48,20 +49,22 @@ class EyeRender(NamedTuple):
 # ---------------------------------------------------------------------------
 
 _PALETTE_DEFAULT: dict[str, str] = {
+    # Palette alignée sur favicon.svg et article panoptic.tawiza.fr
+    # Iris = ocre Tawiza #b45309, cœur = rouge terre #C1554D
     ".": "",
-    "S": "#3a2a1a",  # shadow outer
+    "S": "#3a2a1a",  # shadow outer (cils)
     "s": "#4a3828",  # shadow mid
-    "L": "#1e120a",  # eyelid deep
-    "W": "#e8e2d8",  # sclera light
-    "w": "#d0c8bc",  # sclera mid
-    "B": "#2a1808",  # iris dark ring
-    "D": "#705010",  # iris outer
-    "I": "#a07820",  # iris mid
-    "i": "#c8a030",  # iris bright
-    "G": "#D4A843",  # iris gold (signature)
-    "g": "#e8c860",  # iris highlight
-    "P": "#060402",  # pupil
-    "R": "#f0ece8",  # reflection
+    "L": "#1a1612",  # eyelid deep (paupières site)
+    "W": "#f3ebdd",  # sclera claire (site)
+    "w": "#e4d9c5",  # sclera mid
+    "B": "#6b2e05",  # iris ring (ocre sombre)
+    "D": "#8a3e07",  # iris outer (ocre moyen)
+    "I": "#a04a08",  # iris mid (ocre)
+    "i": "#b45309",  # iris ocre Tawiza (signature site)
+    "G": "#C1554D",  # cœur iris rouge terre Tawiza (signature site)
+    "g": "#d06860",  # cœur iris highlight
+    "P": "#1a1612",  # pupille (même noir que paupières)
+    "R": "#faf5ef",  # reflection crème Tawiza
 }
 
 
@@ -74,10 +77,10 @@ def _palette_for(state: EyeState) -> dict[str, str]:
             "W": "#a89f92", "w": "#908678",
         })
     elif state is EyeState.ALARME:
-        # iris or → rouge terre, alertes coloriales visibles
+        # tout l'iris bascule rouge terre saturé — signal visible
         p.update({
-            "B": "#3a1008", "D": "#80301a", "I": "#a04030",
-            "i": "#c85040", "G": "#C1554D", "g": "#e87060",
+            "B": "#5a1408", "D": "#7a2410", "I": "#9a3420",
+            "i": "#C1554D", "G": "#d8382a", "g": "#eb5f50",
         })
     return p
 
@@ -173,7 +176,7 @@ _CAPTIONS: dict[EyeState, tuple[str, str, str]] = {
     # (label, caption, couleur accent rich)
     EyeState.DORMANT:  ("dormant",  "data périmée, tape `panoptic update`",   "grey50"),
     EyeState.ATTENTIF: ("attentif", "data raisonnable",                         "yellow3"),
-    EyeState.EVEILLE:  ("éveillé",  "data fraîche",                             "#D4A843"),
+    EyeState.EVEILLE:  ("éveillé",  "data fraîche",                             "#b45309"),
     EyeState.ALARME:   ("alarmé",   "micro-signal détecté",                     "red3"),
 }
 
