@@ -208,7 +208,7 @@ def _operators_block(result: SearchResult) -> Text:
     # Tri : alarmes en premier, puis par empreinte RNE
     ops_sorted = sorted(
         ops,
-        key=lambda o: (0 if o.is_alarm else 1, -o.max_signal_score, -o.n_subsidiaries_rne),
+        key=lambda o: (0 if o.is_alarm else 1, -o.max_signal_score, -o.n_subsidiaries_rne_group),
     )
 
     for op in ops_sorted[:8]:
@@ -220,8 +220,8 @@ def _operators_block(result: SearchResult) -> Text:
         t.append(f"{op.canonical_name}", style="bold")
         if op.ultimate_country and op.ultimate_country != "FRA":
             t.append(f"  [{op.country_label}]", style="red3")
-        if op.n_subsidiaries_rne:
-            t.append(f"  · {op.n_subsidiaries_rne} SPV au RNE", style="dim")
+        if op.n_subsidiaries_rne_group:
+            t.append(f"  · {op.n_subsidiaries_rne_group} SPV (groupe)", style="dim")
         t.append("\n")
 
         # Président actuel si personne morale (signal fort)

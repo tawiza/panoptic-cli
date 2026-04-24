@@ -2,16 +2,18 @@
 
 *un regard sur l'agrivoltaïsme français.*
 
-416 projets. 133 contestations. 4 registres publics croisés.
-Une commande sur ton PC, hors-ligne.
+416 projets. 133 contestations. 28 opérateurs canonicalisés. 4 432 filiales RNE indexées.
+4 registres publics croisés. Une commande sur ton PC, hors-ligne.
 
-```
-$ panoptic 47
-  3AYNE · éveillé · data fraîche
-  10 projets · 5 contestations · 454 MWc cumulés
-  ● silence suspect · GLHD [score 80]
-  ↗ projet latent · CONCESSION PLATIN DE GRAVE [score 65]
-```
+[Article](https://panoptic.tawiza.fr/article/) · [Carte interactive](https://panoptic.tawiza.fr/graph/) · [PyPI](https://pypi.org/project/panoptic-tawiza/)
+
+## Cascade actionnariale en une commande
+
+![panoptic operators --alarm](docs/panoptic_operators_alarm.svg)
+
+## Recherche par département, code postal, INSEE ou commune
+
+![panoptic 47](docs/panoptic_47.svg)
 
 ---
 

@@ -177,8 +177,8 @@ def operators(
         )
         if op.ultimate_country and op.ultimate_country != "FRA":
             console.print(f"  [red3]\\[{op.country_label}][/]", end="")
-        if op.n_subsidiaries_rne:
-            console.print(f"  [dim]· {op.n_subsidiaries_rne} SPV au RNE[/]", end="")
+        if op.n_subsidiaries_rne_group:
+            console.print(f"  [dim]· {op.n_subsidiaries_rne_group} SPV (groupe)[/]", end="")
         console.print()
 
         if op.president_is_legal and op.president_current:

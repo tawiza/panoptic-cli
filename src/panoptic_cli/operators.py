@@ -43,7 +43,8 @@ class OperatorRow:
     siren: str
     canonical_name: str
     denomination_rne: str | None
-    n_subsidiaries_rne: int
+    n_subsidiaries_rne: int           # filiales présidées directement par la mère
+    n_subsidiaries_rne_group: int     # filiales via le groupe étendu (holdings inclus)
     president_current: str | None
     president_is_legal: bool
     ultimate_country: str
@@ -86,11 +87,17 @@ def _parse_signals(signals_json: str | None) -> list[OperatorSignal]:
 
 
 def _row_to_operator(r: sqlite3.Row) -> OperatorRow:
+    keys = r.keys()
+    # n_subsidiaries_rne_group absent sur v0.3 pre-B3, fallback sur n_subsidiaries_rne
+    n_solo = r["n_subsidiaries_rne"] or 0
+    n_group = (r["n_subsidiaries_rne_group"]
+               if "n_subsidiaries_rne_group" in keys else None) or 0
     return OperatorRow(
         siren=r["siren"],
         canonical_name=r["canonical_name"],
         denomination_rne=r["denomination_rne"],
-        n_subsidiaries_rne=r["n_subsidiaries_rne"] or 0,
+        n_subsidiaries_rne=n_solo,
+        n_subsidiaries_rne_group=max(n_group, n_solo),
         president_current=r["president_current"],
         president_is_legal=bool(r["president_is_legal"]),
         ultimate_country=r["ultimate_country"] or "FRA",
