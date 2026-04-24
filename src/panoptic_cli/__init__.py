@@ -6,4 +6,4 @@ près de chez toi. Aucun compte, aucun cloud, aucun GPU.
 3AYNE te regarde.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
